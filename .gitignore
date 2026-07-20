@@ -1,0 +1,80 @@
+# Git Ignore Rules
+
+# Audio Files (optional, add your own)
+assets/music/*.mp3
+assets/music/*.wav
+assets/music/*.ogg
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Node (if using any build tools in future)
+node_modules/
+npm-debug.log
+
+# Package Managers
+.npm
+.yarn
+*.tgz
+
+# Temporary Files
+*.tmp
+*.temp
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Distribution
+dist/
+build/
+
+# Testing
+coverage/
+*.test.js
+
+# Dependencies
+vendor/
+
+# IDE
+.project
+.classpath
+.c9/
+.settings/
+*.sublime-workspace
+
+# macOS
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# Backup Files
+*.bak
+*.backup
+*~
+
+# Keep these files
+!assets/music/README.md
+!assets/images/README.md
