@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌹 Jardín Encantado de Leidy 🌹</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Pantalla Inicial -->
+    <div id="initialScreen" class="screen screen-active">
+        <div class="stars-background"></div>
+        <div class="initial-content">
+            <div class="title-section">
+                <h1 class="main-title">🌹 Jardín Encantado 🌹</h1>
+                <div class="subtitle">
+                    <p>Bienvenida,</p>
+                    <p class="name-highlight">Leidy Holguín.</p>
+                </div>
+                <div class="description">
+                    <p>Esta noche...</p>
+                    <p>las rosas tienen algo que contarte.</p>
+                </div>
+            </div>
+            <button id="startBtn" class="btn btn-start">Comenzar</button>
+        </div>
+    </div>
+
+    <!-- Pantalla del Jardín -->
+    <div id="gardenScreen" class="screen">
+        <canvas id="gardenCanvas" class="garden-canvas"></canvas>
+        <div class="garden-container">
+            <div id="rosesContainer" class="roses-container"></div>
+        </div>
+        <div id="alertOverlay" class="alert-overlay hidden">
+            <div class="alert-content">
+                <div class="alert-title">🚨 ¡ALERTA MÁGICA!</div>
+                <div class="alert-text">
+                    <p>El Jardín Encantado ha detectado una situación muy preocupante...</p>
+                    <p>Después de una investigación realizada por las rosas...</p>
+                    <p>Se ha descubierto que <strong>Leidy</strong> lleva demasiadas horas sin comer una hamburguesa con papas fritas.</p>
+                </div>
+                <div class="diagnosis">
+                    <p>❤️ Nivel de felicidad: <strong>99%</strong></p>
+                    <p>🍟 Antojo de papas fritas: <strong>9999%</strong></p>
+                    <p>🍔 Necesidad de hamburguesa: <strong>CRÍTICA</strong></p>
+                </div>
+                <div class="certificate">
+                    <div class="certificate-badge">🏅</div>
+                    <div class="certificate-text">
+                        <p>El Consejo Supremo del Jardín Encantado</p>
+                        <p>concede oficialmente el título de</p>
+                        <p><strong>👑 Reina Oficial de las Hamburguesas</strong></p>
+                        <p><strong>🍟 Emperatriz Suprema de las Papas Fritas</strong></p>
+                    </div>
+                </div>
+                <div class="warning">
+                    <p>⚠️</p>
+                    <p>Si sientes antojo...</p>
+                    <p>no luches contra tu destino.</p>
+                    <p>Disfrútalas.</p>
+                    <p>😂❤️</p>
+                </div>
+                <button id="continueAlertBtn" class="btn btn-alert">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de la Carta -->
+    <div id="letterScreen" class="screen">
+        <canvas id="letterCanvas" class="letter-canvas"></canvas>
+        <div class="letter-container">
+            <div id="envelope" class="envelope">
+                <div class="envelope-back"></div>
+                <div class="envelope-front"></div>
+                <div class="envelope-flap"></div>
+                <div id="letter" class="letter hidden">
+                    <div class="letter-content">
+                        <p class="letter-greeting">Querida Leidy,</p>
+                        <div id="letterText" class="letter-text"></div>
+                        <p class="letter-signature">Con cariño,<br><strong>Vinícius</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Final -->
+    <div id="finalScreen" class="screen">
+        <canvas id="finalCanvas" class="final-canvas"></canvas>
+        <div class="final-content">
+            <div id="finalMessage" class="final-message"></div>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="backgroundMusic" loop>
+        <source src="assets/music/background.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
