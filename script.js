@@ -8,6 +8,7 @@
  * - Gestión de audio con fade in/out (up.mp3)
  * - Navegación entre pantallas
  * - Efectos visuales mágicos mejorados
+ * - Flujo narrativo coherente
  */
 
 // ============================================================================
@@ -32,17 +33,50 @@ const CONFIG = {
 // ALMACENAMIENTO DE ROSAS Y MENSAJES
 // ============================================================================
 
+/**
+ * ORDEN NARRATIVO DE LAS ROSAS:
+ * 1. Bienvenida - Introducción al jardín
+ * 2. Primera verdad - Tu presencia es especial
+ * 3. Tu sonrisa ilumina
+ * 4. Cada nuevo día contigo
+ * 5. Gracias por ser como eres
+ * 6. Tu amor transforma mi vida
+ * 7. Eres mi razón para sonreír
+ * 8. Alerta mágica - La sorpresa/revelación
+ * 9. Lo mejor está a punto de llegar
+ * 10. Carta - El clímax emocional
+ */
+
 const ROSES_DATA = [
+    // Rosa 1: Bienvenida e introducción
     "Bienvenida al Jardín Encantado.\n\nHoy todas las rosas florecieron para celebrar tu cumpleaños especial.",
-    "Eres la luz que ilumina mi mundo.",
-    "Tu sonrisa es el regalo más hermoso del universo.",
-    "Cada día contigo es una bendición.",
-    "Gracias por ser exactamente como eres.",
-    "Tu amor transforma mi vida.",
+    
+    // Rosa 2: Primera verdad - Impacto en el mundo
+    "Eres la luz que ilumina mi mundo.\n\nCada momento contigo es un regalo.",
+    
+    // Rosa 3: Tu belleza interior
+    "Tu sonrisa es el regalo más hermoso del universo.\n\nNo hay nada que brille más.",
+    
+    // Rosa 4: Tiempo compartido
+    "Cada día contigo es una bendición.\n\nUn nuevo motivo para sonreír.",
+    
+    // Rosa 5: Gratitud
+    "Gracias por ser exactamente como eres.\n\nPerfecta en tu esencia.",
+    
+    // Rosa 6: Tu influencia en mí
+    "Tu amor transforma mi vida.\n\nMe hace mejor cada día.",
+    
+    // Rosa 7: Razón de ser
     "Eres mi razón favorita para sonreír.\n\nMi sueño hecho realidad.",
-    "Lo mejor está a punto de llegar...\n\nTiene tu nombre.",
-    "alert", // Rosa 9 - Alerta Mágica
-    "letter" // Rosa 10 - Carta
+    
+    // Rosa 8: Transición a la alerta
+    "Las rosas tienen un secreto para ti...\n\nEscúchalas con el corazón.",
+    
+    // Rosa 9: Alerta mágica - La revelación especial
+    "alert",
+    
+    // Rosa 10: Carta final - Lo más importante
+    "letter"
 ];
 
 const LETTER_TEXT = `Hoy celebramos a la persona más especial del universo.
@@ -82,6 +116,7 @@ const STATE = {
     musicStarted: false,
     musicPlaying: true,
     currentRoseOpen: null,
+    roseOpenedSequence: new Set(), // Registrar el orden en que se abren
     letterOpened: false,
     alertShown: false,
     canvasAnimations: {
@@ -625,17 +660,25 @@ class RoseManager {
 
     /**
      * Abre una rosa específica
+     * Mantiene el orden narrativo sin quebrar el flujo
      */
     static openRose(index) {
         const message = ROSES_DATA[index];
 
+        // Si ya se abrió esta rosa, no hacer nada (evita duplicados)
+        if (STATE.roseOpenedSequence.has(index)) {
+            return;
+        }
+
         if (message === 'alert') {
             this.showAlert();
+            STATE.roseOpenedSequence.add(index);
             return;
         }
 
         if (message === 'letter') {
             this.openLetter();
+            STATE.roseOpenedSequence.add(index);
             return;
         }
 
@@ -645,6 +688,7 @@ class RoseManager {
         }
 
         STATE.currentRoseOpen = index;
+        STATE.roseOpenedSequence.add(index);
 
         // Crear contenedor del mensaje
         const messageDiv = document.createElement('div');
@@ -685,7 +729,7 @@ class RoseManager {
     }
 
     /**
-     * Muestra la alerta mágica
+     * Muestra la alerta mágica (rosa 9)
      */
     static showAlert() {
         const alertOverlay = document.getElementById('alertOverlay');
@@ -699,7 +743,7 @@ class RoseManager {
     }
 
     /**
-     * Abre la carta
+     * Abre la carta (rosa 10 - clímax)
      */
     static openLetter() {
         ScreenManager.switchTo('letter');
