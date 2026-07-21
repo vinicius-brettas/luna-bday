@@ -1,7 +1,6 @@
 # Git Ignore Rules
 
 # Audio Files (optional, add your own)
-assets/music/*.mp3
 assets/music/*.wav
 assets/music/*.ogg
 
