@@ -1,13 +1,13 @@
 /**
- * Jardín Encantado de Leidy - Main JavaScript
- * Un regalo interactivo y mágico para el cumpleaños de Leidy
+ * Jardín Encantado de Luna - Main JavaScript
+ * Un regalo interactivo y mágico para el cumpleaños de Luna
  * 
  * Funcionalidades:
  * - Animaciones de partículas y canvas
- * - Sistema de rosas interactivas
- * - Gestión de audio con fade in/out
+ * - Sistema de rosas interactivas con animaciones 3D
+ * - Gestión de audio con fade in/out (up.mp3)
  * - Navegación entre pantallas
- * - Efectos visuales mágicos
+ * - Efectos visuales mágicos mejorados
  */
 
 // ============================================================================
@@ -16,14 +16,14 @@
 
 const CONFIG = {
     MUSIC_FADE_IN_DURATION: 5000,
-    MUSIC_INITIAL_VOLUME: 0.2,
-    MUSIC_LETTER_VOLUME: 0.1,
+    MUSIC_INITIAL_VOLUME: 0.3,
+    MUSIC_LETTER_VOLUME: 0.15,
     MUSIC_FADE_OUT_DURATION: 3000,
-    TYPING_SPEED: 50,
+    TYPING_SPEED: 45,
     ROSE_POSITIONS: [
-        { x: '20%', y: '30%' }, { x: '50%', y: '15%' }, { x: '80%', y: '35%' },
-        { x: '15%', y: '60%' }, { x: '85%', y: '65%' }, { x: '35%', y: '70%' },
-        { x: '65%', y: '75%' }, { x: '45%', y: '50%' }, { x: '75%', y: '45%' },
+        { x: '15%', y: '20%' }, { x: '50%', y: '10%' }, { x: '85%', y: '25%' },
+        { x: '10%', y: '55%' }, { x: '90%', y: '60%' }, { x: '30%', y: '75%' },
+        { x: '70%', y: '80%' }, { x: '50%', y: '50%' }, { x: '75%', y: '40%' },
         { x: '25%', y: '85%' }
     ]
 };
@@ -33,25 +33,29 @@ const CONFIG = {
 // ============================================================================
 
 const ROSES_DATA = [
-    "Bienvenida al Jardín Encantado.\n\nHoy todas las rosas florecieron para celebrar tu cumpleaños.",
-    "Nunca dejes de creer en tus sueños.",
-    "Tu sonrisa ilumina cualquier lugar.",
-    "Que este nuevo año esté lleno de aventuras.",
-    "Gracias por ser una persona tan especial.",
-    "El mundo es un lugar más bonito porque tú existes.",
-    "Cada rosa guarda un deseo para ti.\n\nSalud.\nPaz.\nAlegría.\nAmor.",
-    "Ya falta muy poco...\n\nLa sorpresa está esperándote.",
+    "Bienvenida al Jardín Encantado.\n\nHoy todas las rosas florecieron para celebrar tu cumpleaños especial.",
+    "Eres la luz que ilumina mi mundo.",
+    "Tu sonrisa es el regalo más hermoso del universo.",
+    "Cada día contigo es una bendición.",
+    "Gracias por ser exactamente como eres.",
+    "Tu amor transforma mi vida.",
+    "Eres mi razón favorita para sonreír.\n\nMi sueño hecho realidad.",
+    "Lo mejor está a punto de llegar...\n\nTiene tu nombre.",
     "alert", // Rosa 9 - Alerta Mágica
     "letter" // Rosa 10 - Carta
 ];
 
-const LETTER_TEXT = `Hoy celebramos a una persona maravillosa.
+const LETTER_TEXT = `Hoy celebramos a la persona más especial del universo.
 
-Deseo que nunca te falten motivos para sonreír.
+A ti, Luna.
 
-Que cada sueño encuentre su camino.
+Deseo que nunca se apague la magia que llevas dentro.
 
-Que la vida siempre te sorprenda con momentos hermosos.
+Que cada nuevo día te traiga razones para sonreír.
+
+Que cada sueño encuentre su camino hacia ti.
+
+Que la vida siempre te sorprenda con momentos tan hermosos como lo eres tú.
 
 Preparé este pequeño jardín porque quería regalarte algo diferente.
 
@@ -59,15 +63,15 @@ Algo hecho con tiempo.
 
 Con dedicación.
 
-Y sobre todo...
+Con amor infinito.
 
-con mucho cariño.
+Espero que este pequeño detalle haya logrado tocarte el corazón.
 
-Espero que este pequeño detalle haya logrado sacarte una sonrisa.
+Tú eres mi mayor bendición.
 
 ❤️
 
-¡Feliz cumpleaños!`;
+¡Feliz cumpleaños, mi amor!`;
 
 // ============================================================================
 // GESTIÓN DE ESTADO
@@ -76,6 +80,7 @@ Espero que este pequeño detalle haya logrado sacarte una sonrisa.
 const STATE = {
     currentScreen: 'initial',
     musicStarted: false,
+    musicPlaying: true,
     currentRoseOpen: null,
     letterOpened: false,
     alertShown: false,
@@ -106,7 +111,33 @@ class AudioManager {
             console.log('Reproducción de audio bloqueada por el navegador');
         });
         STATE.musicStarted = true;
+        STATE.musicPlaying = true;
+        this.updateMusicButton();
         this.fadeIn(CONFIG.MUSIC_INITIAL_VOLUME, CONFIG.MUSIC_FADE_IN_DURATION);
+    }
+
+    /**
+     * Alterna pausa/reproducción
+     */
+    toggleMusic() {
+        if (this.audio.paused) {
+            this.audio.play();
+            STATE.musicPlaying = true;
+        } else {
+            this.audio.pause();
+            STATE.musicPlaying = false;
+        }
+        this.updateMusicButton();
+    }
+
+    /**
+     * Actualiza el icono del botón de música
+     */
+    updateMusicButton() {
+        const btn = document.getElementById('musicToggle');
+        if (btn) {
+            btn.innerHTML = `<span class="music-icon">${STATE.musicPlaying ? '🔊' : '🔇'}</span>`;
+        }
     }
 
     /**
@@ -239,9 +270,9 @@ class CanvasAnimations {
         window.addEventListener('resize', () => this.resizeCanvas(canvas));
 
         // Inicializar partículas
-        const particles = this.createParticles();
-        const stars = this.createStars(canvas.width, canvas.height);
-        const fireflies = this.createFireflies(canvas.width, canvas.height);
+        const particles = this.createParticles(50);
+        const stars = this.createStars(canvas.width, canvas.height, 80);
+        const fireflies = this.createFireflies(canvas.width, canvas.height, 20);
 
         // Loop de animación
         const animate = () => {
@@ -294,12 +325,19 @@ class CanvasAnimations {
         this.resizeCanvas(canvas);
         window.addEventListener('resize', () => this.resizeCanvas(canvas));
 
-        const fireflies = this.createFireflies(canvas.width, canvas.height);
+        const fireflies = this.createFireflies(canvas.width, canvas.height, 25);
+        const stars = this.createStars(canvas.width, canvas.height, 50);
 
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Dibujar lluvia de pétalos alrededor del sobre
+            // Dibujar estrellas
+            stars.forEach(star => {
+                star.update();
+                star.draw(ctx);
+            });
+
+            // Dibujar luciérnagas
             fireflies.forEach(firefly => {
                 firefly.update();
                 firefly.draw(ctx);
@@ -323,8 +361,9 @@ class CanvasAnimations {
         this.resizeCanvas(canvas);
         window.addEventListener('resize', () => this.resizeCanvas(canvas));
 
-        const particles = this.createParticles(100);
-        const stars = this.createStars(canvas.width, canvas.height);
+        const particles = this.createParticles(80);
+        const stars = this.createStars(canvas.width, canvas.height, 100);
+        const fireflies = this.createFireflies(canvas.width, canvas.height, 30);
 
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -333,6 +372,12 @@ class CanvasAnimations {
             stars.forEach(star => {
                 star.update();
                 star.draw(ctx);
+            });
+
+            // Dibujar luciérnagas
+            fireflies.forEach(firefly => {
+                firefly.update();
+                firefly.draw(ctx);
             });
 
             // Dibujar pétalos
@@ -380,12 +425,13 @@ class CanvasAnimations {
         return {
             x: Math.random() * maxWidth,
             y: Math.random() * window.innerHeight - window.innerHeight,
-            size: Math.random() * 3 + 2,
-            speedY: Math.random() * 1 + 0.5,
+            size: Math.random() * 4 + 2,
+            speedY: Math.random() * 1.5 + 0.5,
             speedX: Math.random() * 2 - 1,
             rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: Math.random() * 0.05 - 0.025,
-            opacity: Math.random() * 0.5 + 0.3,
+            rotationSpeed: Math.random() * 0.08 - 0.04,
+            opacity: Math.random() * 0.6 + 0.3,
+            color: Math.random() > 0.5 ? '#dc2626' : '#ec4899',
 
             update() {
                 this.y += this.speedY;
@@ -396,10 +442,12 @@ class CanvasAnimations {
             draw(ctx) {
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
-                ctx.fillStyle = '#dc2626'; // Rojo
+                ctx.fillStyle = this.color;
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
-                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
                 ctx.restore();
             }
         };
@@ -414,9 +462,9 @@ class CanvasAnimations {
             stars.push({
                 x: Math.random() * width,
                 y: Math.random() * height * 0.6,
-                size: Math.random() * 1.5,
-                opacity: Math.random() * 0.5 + 0.3,
-                twinkleSpeed: Math.random() * 0.02 + 0.01,
+                size: Math.random() * 1.5 + 0.5,
+                opacity: Math.random() * 0.6 + 0.3,
+                twinkleSpeed: Math.random() * 0.03 + 0.01,
                 twinkleDirection: Math.random() > 0.5 ? 1 : -1,
 
                 update() {
@@ -449,12 +497,12 @@ class CanvasAnimations {
             fireflies.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
-                size: Math.random() * 2 + 1,
-                speedX: Math.random() * 1 - 0.5,
-                speedY: Math.random() * 1 - 0.5,
-                opacity: Math.random() * 0.5 + 0.3,
-                glowSize: Math.random() * 20 + 15,
-                glowPulse: Math.random() * 0.05,
+                size: Math.random() * 2.5 + 1.5,
+                speedX: Math.random() * 1.5 - 0.75,
+                speedY: Math.random() * 1.5 - 0.75,
+                opacity: Math.random() * 0.6 + 0.3,
+                glowSize: Math.random() * 30 + 20,
+                glowPulse: Math.random() * 0.08,
 
                 update() {
                     this.x += this.speedX;
@@ -464,17 +512,18 @@ class CanvasAnimations {
                     if (this.x < 0 || this.x > width) this.speedX *= -1;
                     if (this.y < 0 || this.y > height) this.speedY *= -1;
 
-                    this.opacity += Math.random() * 0.1 - 0.05;
-                    this.opacity = Math.max(0.1, Math.min(0.8, this.opacity));
+                    this.opacity += Math.random() * 0.12 - 0.06;
+                    this.opacity = Math.max(0.1, Math.min(0.9, this.opacity));
                 },
 
                 draw(ctx) {
                     ctx.save();
                     ctx.globalAlpha = this.opacity;
 
-                    // Brillo
+                    // Brillo dorado y rosado
                     const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.glowSize);
-                    gradient.addColorStop(0, 'rgba(251, 191, 36, 0.8)');
+                    gradient.addColorStop(0, 'rgba(251, 191, 36, 0.9)');
+                    gradient.addColorStop(0.5, 'rgba(236, 72, 153, 0.4)');
                     gradient.addColorStop(1, 'rgba(251, 191, 36, 0)');
                     ctx.fillStyle = gradient;
                     ctx.fillRect(this.x - this.glowSize, this.y - this.glowSize, this.glowSize * 2, this.glowSize * 2);
@@ -498,16 +547,17 @@ class CanvasAnimations {
     static drawMoon(ctx, width, height) {
         const moonX = width * 0.85;
         const moonY = height * 0.15;
-        const moonRadius = 80;
+        const moonRadius = 100;
 
         // Brillo de luna
-        const gradient = ctx.createRadialGradient(moonX - 20, moonY - 20, 0, moonX, moonY, moonRadius * 1.2);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+        const gradient = ctx.createRadialGradient(moonX - 25, moonY - 25, 0, moonX, moonY, moonRadius * 1.3);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        gradient.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(moonX, moonY, moonRadius * 1.2, 0, Math.PI * 2);
+        ctx.arc(moonX, moonY, moonRadius * 1.3, 0, Math.PI * 2);
         ctx.fill();
 
         // Luna sólida
@@ -519,7 +569,7 @@ class CanvasAnimations {
         // Sombra lunar
         ctx.fillStyle = '#0a1e4d';
         ctx.beginPath();
-        ctx.arc(moonX + 15, moonY + 15, moonRadius * 0.7, 0, Math.PI * 2);
+        ctx.arc(moonX + 20, moonY + 20, moonRadius * 0.6, 0, Math.PI * 2);
         ctx.fill();
     }
 
@@ -528,7 +578,8 @@ class CanvasAnimations {
      */
     static drawGlowEffect(ctx, width, height) {
         const gradient = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, Math.max(width, height));
-        gradient.addColorStop(0, 'rgba(251, 191, 36, 0.05)');
+        gradient.addColorStop(0, 'rgba(251, 191, 36, 0.08)');
+        gradient.addColorStop(0.5, 'rgba(236, 72, 153, 0.04)');
         gradient.addColorStop(1, 'rgba(251, 191, 36, 0)');
 
         ctx.fillStyle = gradient;
@@ -567,12 +618,6 @@ class RoseManager {
             rose.dataset.index = index;
 
             rose.addEventListener('click', () => this.openRose(index));
-            rose.addEventListener('mouseover', () => {
-                rose.style.transform = 'scale(1.1)';
-            });
-            rose.addEventListener('mouseout', () => {
-                rose.style.transform = 'scale(1)';
-            });
 
             container.appendChild(rose);
         });
@@ -671,7 +716,7 @@ class RoseManager {
         setTimeout(() => {
             letter.classList.remove('hidden');
             this.typeLetterText();
-        }, 1200);
+        }, 1400);
     }
 
     /**
@@ -740,20 +785,20 @@ class RoseManager {
 
         const message1 = document.createElement('p');
         message1.className = 'distance-message';
-        message1.innerHTML = 'La distancia mide kilómetros...<br><br>pero el cariño se mide por los detalles.<br><br>❤️';
+        message1.innerHTML = 'La distancia es solo un número...<br><br>pero tu amor es infinito.❤️';
         finalMessage.appendChild(message1);
 
         setTimeout(() => {
             const message2 = document.createElement('p');
             message2.className = 'gratitude';
-            message2.innerHTML = 'Gracias por recorrer este pequeño jardín.<br><br>¡Feliz cumpleaños, Leidy!<br><br>🌹';
+            message2.innerHTML = 'Gracias por recorrer este pequeño jardín.<br><br>¡Feliz cumpleaños, Luna!<br><br>🌹✨';
             finalMessage.appendChild(message2);
 
             setTimeout(() => {
                 CanvasAnimations.initFinal();
                 setTimeout(() => {
                     this.fadeToBlack();
-                }, 5000);
+                }, 6000);
             }, 1000);
         }, 2000);
     }
@@ -762,7 +807,7 @@ class RoseManager {
      * Desvanece a negro
      */
     static fadeToBlack() {
-        document.body.style.transition = 'background 2s ease-out';
+        document.body.style.transition = 'background 3s ease-out';
         document.body.style.background = '#000000';
 
         const screens = document.querySelectorAll('.screen');
@@ -785,6 +830,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ScreenManager.switchTo('garden');
         audioManager.playWithFadeIn();
         RoseManager.createRoses();
+    });
+
+    // Control de música
+    const musicToggle = document.getElementById('musicToggle');
+    musicToggle.addEventListener('click', () => {
+        audioManager.toggleMusic();
     });
 
     // Hacer canvas responsive
