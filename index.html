@@ -24,7 +24,7 @@
                     <p class="fade-in-text">las rosas tienen algo que contarte.</p>
                 </div>
             </div>
-            <button id="startBtn" class="btn btn-start btn-lg mt-4">
+            <button id="startBtn" class="btn btn-start btn-lg">
                 <span class="button-text">Comenzar la Aventura</span>
                 <span class="button-icon">✨</span>
             </button>
@@ -97,9 +97,10 @@
         </div>
     </div>
 
-    <!-- Audio -->
-    <audio id="backgroundMusic" loop>
+    <!-- Audio - Múltiples fuentes para compatibilidad -->
+    <audio id="backgroundMusic" loop crossorigin="anonymous" preload="auto">
         <source src="assets/music/up.mp3" type="audio/mpeg">
+        <source src="assets/music/up.wav" type="audio/wav">
     </audio>
 
     <!-- Music Control (para que el usuario pueda controlar la música) -->
