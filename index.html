@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌹 Jardín Encantado de Leidy 🌹</title>
+    <title>🌹 Jardín Encantado de Luna 🌹</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,17 +14,20 @@
         <div class="stars-background"></div>
         <div class="initial-content">
             <div class="title-section">
-                <h1 class="main-title">🌹 Jardín Encantado 🌹</h1>
+                <h1 class="main-title animate-title">🌹 Jardín Encantado 🌹</h1>
                 <div class="subtitle">
-                    <p>Bienvenida,</p>
-                    <p class="name-highlight">Leidy Holguín.</p>
+                    <p class="fade-in-text">Bienvenida,</p>
+                    <p class="name-highlight fade-in-text">Luna.</p>
                 </div>
                 <div class="description">
-                    <p>Esta noche...</p>
-                    <p>las rosas tienen algo que contarte.</p>
+                    <p class="fade-in-text">Esta noche...</p>
+                    <p class="fade-in-text">las rosas tienen algo que contarte.</p>
                 </div>
             </div>
-            <button id="startBtn" class="btn btn-start">Comenzar</button>
+            <button id="startBtn" class="btn btn-start btn-lg mt-4">
+                <span class="button-text">Comenzar la Aventura</span>
+                <span class="button-icon">✨</span>
+            </button>
         </div>
     </div>
 
@@ -34,34 +39,33 @@
         </div>
         <div id="alertOverlay" class="alert-overlay hidden">
             <div class="alert-content">
-                <div class="alert-title">🚨 ¡ALERTA MÁGICA!</div>
+                <div class="alert-title animate-bounce">🚨 ¡ALERTA MÁGICA!</div>
                 <div class="alert-text">
                     <p>El Jardín Encantado ha detectado una situación muy preocupante...</p>
                     <p>Después de una investigación realizada por las rosas...</p>
-                    <p>Se ha descubierto que <strong>Leidy</strong> lleva demasiadas horas sin comer una hamburguesa con papas fritas.</p>
+                    <p>Se ha descubierto que <strong>Luna</strong> es la persona más hermosa del universo.</p>
                 </div>
                 <div class="diagnosis">
-                    <p>❤️ Nivel de felicidad: <strong>99%</strong></p>
-                    <p>🍟 Antojo de papas fritas: <strong>9999%</strong></p>
-                    <p>🍔 Necesidad de hamburguesa: <strong>CRÍTICA</strong></p>
+                    <p>❤️ Nivel de belleza: <strong>∞</strong></p>
+                    <p>✨ Nivel de magia: <strong>∞</strong></p>
+                    <p>💝 Merecedor de amor: <strong>INFINITO</strong></p>
                 </div>
                 <div class="certificate">
                     <div class="certificate-badge">🏅</div>
                     <div class="certificate-text">
                         <p>El Consejo Supremo del Jardín Encantado</p>
                         <p>concede oficialmente el título de</p>
-                        <p><strong>👑 Reina Oficial de las Hamburguesas</strong></p>
-                        <p><strong>🍟 Emperatriz Suprema de las Papas Fritas</strong></p>
+                        <p><strong>👑 Reina del Corazón Puro</strong></p>
+                        <p><strong>✨ Soberana de la Luz y el Amor</strong></p>
                     </div>
                 </div>
                 <div class="warning">
                     <p>⚠️</p>
-                    <p>Si sientes antojo...</p>
-                    <p>no luches contra tu destino.</p>
-                    <p>Disfrútalas.</p>
-                    <p>😂❤️</p>
+                    <p>Tu belleza es un regalo para el mundo.</p>
+                    <p>Nunca olvides brillar así.</p>
+                    <p>💖✨</p>
                 </div>
-                <button id="continueAlertBtn" class="btn btn-alert">Continuar</button>
+                <button id="continueAlertBtn" class="btn btn-danger btn-lg">Continuar</button>
             </div>
         </div>
     </div>
@@ -76,9 +80,9 @@
                 <div class="envelope-flap"></div>
                 <div id="letter" class="letter hidden">
                     <div class="letter-content">
-                        <p class="letter-greeting">Querida Leidy,</p>
+                        <p class="letter-greeting">Querida Luna,</p>
                         <div id="letterText" class="letter-text"></div>
-                        <p class="letter-signature">Con cariño,<br><strong>Vinícius</strong></p>
+                        <p class="letter-signature">Con todo mi cariño,<br><strong>Vinícius ❤️</strong></p>
                     </div>
                 </div>
             </div>
@@ -95,9 +99,18 @@
 
     <!-- Audio -->
     <audio id="backgroundMusic" loop>
-        <source src="assets/music/background.mp3" type="audio/mpeg">
+        <source src="assets/music/up.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Music Control (para que el usuario pueda controlar la música) -->
+    <div class="music-control">
+        <button id="musicToggle" class="btn-music" title="Controlar música">
+            <span class="music-icon">🔊</span>
+        </button>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
