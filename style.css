@@ -23,8 +23,8 @@
 #gardenScreen.active .rose-sepals{animation:budAppear .4s ease-out calc(var(--grow-delay) + .73s) forwards}
 .bloom-shadow{fill:#23030d;opacity:.7;filter:blur(4px)}
 .rose-bloom{transform:translate(var(--tilt-y),0);transform-origin:120px 150px;transition:transform .35s ease,filter .35s ease}
-.rose-petal{stroke:rgba(255,141,157,.58);stroke-width:1.15;paint-order:stroke fill;vector-effect:non-scaling-stroke;opacity:0;transform:translateY(24px) scale(.16) rotate(var(--petal-turn));transform-box:fill-box;transform-origin:50% 82%;transition:transform .55s cubic-bezier(.2,1.2,.35,1),filter .35s ease,opacity .35s ease}
-.petals-outer .rose-petal{stroke-width:1.35}.petals-inner .rose-petal{stroke:rgba(255,105,130,.42)}
+.rose-petal{stroke:rgba(255,112,105,.58);stroke-width:1.15;paint-order:stroke fill;vector-effect:non-scaling-stroke;opacity:0;transform:translateY(24px) scale(.16) rotate(var(--petal-turn));transform-box:fill-box;transform-origin:50% 82%;transition:transform .55s cubic-bezier(.2,1.2,.35,1),filter .35s ease,opacity .35s ease}
+.petals-outer .rose-petal{stroke-width:1.35}.petals-inner .rose-petal{stroke:rgba(246,70,65,.42)}
 #gardenScreen.active .petals-outer .rose-petal{animation:petalOpenOuter .72s cubic-bezier(.18,1.2,.3,1) calc(var(--petal-delay) + .62s) forwards}
 #gardenScreen.active .petals-middle .rose-petal{animation:petalOpenMiddle .7s cubic-bezier(.18,1.2,.3,1) calc(var(--petal-delay) + .96s) forwards}
 #gardenScreen.active .petals-inner .rose-petal,#gardenScreen.active .rose-heart{animation:petalOpenInner .62s cubic-bezier(.18,1.2,.3,1) calc(var(--petal-delay) + 1.28s) forwards}
@@ -34,10 +34,10 @@
 .rose-button.locked .petals-middle .rose-petal{transform:translateY(16px) scale(.48) rotate(var(--petal-turn))!important;opacity:.66!important}
 .rose-button.locked .petals-inner .rose-petal,.rose-button.locked .rose-heart{transform:translateY(19px) scale(.28)!important;opacity:.5!important}
 .rose-button.current{filter:drop-shadow(0 0 13px rgba(255,184,103,.55));z-index:3}
-.rose-button.current::after{content:'';top:16%;left:50%;width:48%;aspect-ratio:1;border:1px solid rgba(255,215,122,.55);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 15px rgba(255,210,112,.55),inset 0 0 12px rgba(255,95,135,.32);animation:roseBeacon 1.8s ease-in-out infinite;pointer-events:none}
-.rose-button.opened{opacity:.88;filter:drop-shadow(0 0 19px rgba(255,79,124,.68)) saturate(.92)}
+.rose-button.current::after{content:'';top:16%;left:50%;width:48%;aspect-ratio:1;border:1px solid rgba(255,215,122,.55);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 15px rgba(255,210,112,.55),inset 0 0 12px rgba(226,44,48,.32);animation:roseBeacon 1.8s ease-in-out infinite;pointer-events:none}
+.rose-button.opened{opacity:.88;filter:drop-shadow(0 0 19px rgba(214,34,43,.68)) saturate(.92)}
 .rose-button.opened .rose-petal{transform:translateY(-2px) scale(1.06) rotate(var(--petal-turn));filter:brightness(1.08)}
-.rose-button:hover:not(.locked) .realistic-rose{filter:brightness(1.1) saturate(1.12) drop-shadow(0 0 8px rgba(255,109,137,.4))}
+.rose-button:hover:not(.locked) .realistic-rose{filter:brightness(1.1) saturate(1.12) drop-shadow(0 0 8px rgba(239,55,55,.4))}
 .rose-button:hover:not(.locked) .rose-petal{filter:brightness(1.13);transform:translateY(-1px) scale(1.025) rotate(var(--petal-turn))}
 .rose-button:active:not(.locked) .rose-bloom{transform:translate(var(--tilt-y),2px) scale(.985)}
 @keyframes roseButtonIn{0%{transform:translate(-50%,-45%) scale(.05);opacity:0}68%{transform:translate(-50%,-51%) scale(1.03);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
