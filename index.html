@@ -1,117 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌹 Jardín Encantado de Luna 🌹</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07142e">
+  <meta name="description" content="Un jardín encantado creado especialmente para Luna.">
+  <meta property="og:title" content="🌹 Jardín Encantado de Luna">
+  <meta property="og:description" content="Una sorpresa hecha con cariño, magia y muchas rosas.">
+  <title>🌹 Jardín Encantado de Luna 🌹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Pantalla Inicial -->
-    <div id="initialScreen" class="screen screen-active">
-        <div class="stars-background"></div>
-        <div class="initial-content">
-            <div class="title-section">
-                <h1 class="main-title animate-title">🌹 Jardín Encantado 🌹</h1>
-                <div class="subtitle">
-                    <p class="fade-in-text">Bienvenida,</p>
-                    <p class="name-highlight fade-in-text">Luna.</p>
-                </div>
-                <div class="description">
-                    <p class="fade-in-text">Esta noche...</p>
-                    <p class="fade-in-text">las rosas tienen algo que contarte.</p>
-                </div>
-            </div>
-            <button id="startBtn" class="btn btn-start btn-lg">
-                <span class="button-text">Comenzar la Aventura</span>
-                <span class="button-icon">✨</span>
-            </button>
-        </div>
+  <div id="app" class="app">
+    <canvas id="fxCanvas" aria-hidden="true"></canvas>
+    <div class="sky" aria-hidden="true">
+      <div class="aurora aurora-one"></div>
+      <div class="aurora aurora-two"></div>
+      <div class="moon-wrap"><div class="moon"><span></span><span></span><span></span></div></div>
+      <div class="cloud cloud-one"></div><div class="cloud cloud-two"></div>
+      <div class="mountains mountains-back"></div><div class="mountains mountains-front"></div>
+      <div class="mist mist-one"></div><div class="mist mist-two"></div>
     </div>
 
-    <!-- Pantalla del Jardín -->
-    <div id="gardenScreen" class="screen">
-        <canvas id="gardenCanvas" class="garden-canvas"></canvas>
-        <div class="garden-container">
-            <div id="rosesContainer" class="roses-container"></div>
+    <main>
+      <section id="introScreen" class="screen active" aria-labelledby="introTitle">
+        <div class="intro-card glass-card">
+          <p class="eyebrow">Una noche hecha solo para ti</p>
+          <h1 id="introTitle">Jardín Encantado</h1>
+          <p class="luna-name">Luna</p>
+          <p class="intro-copy">Esta noche, cada rosa guarda una palabra que mi corazón quería decirte.</p>
+          <button id="startBtn" class="primary-btn" type="button"><span>Comenzar la aventura</span><b>✨</b></button>
+          <p class="small-note">Activa el sonido para vivir la experiencia completa.</p>
         </div>
-        <div id="alertOverlay" class="alert-overlay hidden">
-            <div class="alert-content">
-                <div class="alert-title animate-bounce">🚨 ¡ALERTA MÁGICA!</div>
-                <div class="alert-text">
-                    <p>El Jardín Encantado ha detectado una situación muy preocupante...</p>
-                    <p>Después de una investigación realizada por las rosas...</p>
-                    <p>Se ha descubierto que <strong>Luna</strong> es la persona más hermosa del universo.</p>
-                </div>
-                <div class="diagnosis">
-                    <p>❤️ Nivel de belleza: <strong>∞</strong></p>
-                    <p>✨ Nivel de magia: <strong>∞</strong></p>
-                    <p>💝 Merecedor de amor: <strong>INFINITO</strong></p>
-                </div>
-                <div class="certificate">
-                    <div class="certificate-badge">🏅</div>
-                    <div class="certificate-text">
-                        <p>El Consejo Supremo del Jardín Encantado</p>
-                        <p>concede oficialmente el título de</p>
-                        <p><strong>👑 Reina del Corazón Puro</strong></p>
-                        <p><strong>✨ Soberana de la Luz y el Amor</strong></p>
-                    </div>
-                </div>
-                <div class="warning">
-                    <p>⚠️</p>
-                    <p>Tu belleza es un regalo para el mundo.</p>
-                    <p>Nunca olvides brillar así.</p>
-                    <p>💖✨</p>
-                </div>
-                <button id="continueAlertBtn" class="btn btn-danger btn-lg">Continuar</button>
-            </div>
+      </section>
+
+      <section id="gardenScreen" class="screen" aria-labelledby="gardenTitle">
+        <header class="garden-header">
+          <p class="eyebrow">Toca las rosas en orden</p>
+          <h2 id="gardenTitle">El jardín tiene algo que contarte</h2>
+          <div class="progress-wrap" aria-label="Progreso del jardín">
+            <div id="progressBar" class="progress-bar"></div>
+            <span id="progressText">0 / 10</span>
+          </div>
+        </header>
+        <div id="rosesContainer" class="roses-container" aria-live="polite"></div>
+        <div class="ground" aria-hidden="true"><div class="grass"></div></div>
+      </section>
+
+      <section id="letterScreen" class="screen" aria-labelledby="letterTitle">
+        <div class="letter-stage">
+          <p class="eyebrow">La última rosa guardaba esto</p>
+          <h2 id="letterTitle">Una carta para Luna</h2>
+          <button id="envelope" class="envelope" type="button" aria-label="Abrir carta">
+            <span class="envelope-back"></span><span class="letter-paper"><span id="letterText"></span><span class="signature">Con todo mi cariño,<br><strong>Vinícius ❤️</strong></span></span><span class="envelope-front"></span><span class="envelope-flap"></span><span class="wax-seal">V</span>
+          </button>
+          <p id="letterHint" class="letter-hint">Toca el sello para abrir la carta</p>
+          <button id="finishLetterBtn" class="primary-btn hidden" type="button"><span>Ver el final</span><b>🌹</b></button>
         </div>
+      </section>
+
+      <section id="finalScreen" class="screen" aria-labelledby="finalTitle">
+        <div class="final-card glass-card">
+          <p class="eyebrow">Aunque estemos lejos</p>
+          <h2 id="finalTitle">La distancia es solo un número</h2>
+          <div id="lunaWord" class="luna-word" aria-label="Luna">LUNA</div>
+          <p>Tu luz siempre encuentra el camino hasta mí.</p>
+          <p class="final-love">¡Feliz cumpleaños, mi amor! ❤️</p>
+          <button id="restartBtn" class="secondary-btn" type="button">Volver al jardín</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="messageModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="messageTitle" hidden>
+      <div class="modal-backdrop"></div>
+      <div class="message-card glass-card">
+        <span id="messageNumber" class="message-number"></span>
+        <h2 id="messageTitle">Una rosa para ti</h2>
+        <p id="messageBody"></p>
+        <button id="closeMessageBtn" class="primary-btn" type="button"><span>Continuar</span><b>✨</b></button>
+      </div>
     </div>
 
-    <!-- Pantalla de la Carta -->
-    <div id="letterScreen" class="screen">
-        <canvas id="letterCanvas" class="letter-canvas"></canvas>
-        <div class="letter-container">
-            <div id="envelope" class="envelope">
-                <div class="envelope-back"></div>
-                <div class="envelope-front"></div>
-                <div class="envelope-flap"></div>
-                <div id="letter" class="letter hidden">
-                    <div class="letter-content">
-                        <p class="letter-greeting">Querida Luna,</p>
-                        <div id="letterText" class="letter-text"></div>
-                        <p class="letter-signature">Con todo mi cariño,<br><strong>Vinícius ❤️</strong></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="magicAlert" class="modal" role="dialog" aria-modal="true" aria-labelledby="alertTitle" hidden>
+      <div class="modal-backdrop"></div>
+      <div class="alert-card glass-card">
+        <p class="alert-icon">🚨✨</p><h2 id="alertTitle">¡Alerta mágica!</h2>
+        <p>Después de una investigación muy seria, las rosas descubrieron algo extraordinario:</p>
+        <p class="alert-highlight">Luna es la persona más hermosa del universo.</p>
+        <div class="stats"><span>❤️ Belleza <b>∞</b></span><span>✨ Magia <b>∞</b></span><span>💝 Amor merecido <b>INFINITO</b></span></div>
+        <div class="certificate"><span>🏅</span><p>El Consejo Supremo del Jardín Encantado concede el título de</p><strong>👑 Reina del Corazón Puro</strong></div>
+        <button id="continueAlertBtn" class="primary-btn" type="button"><span>Continuar</span><b>🌹</b></button>
+      </div>
     </div>
 
-    <!-- Pantalla Final -->
-    <div id="finalScreen" class="screen">
-        <canvas id="finalCanvas" class="final-canvas"></canvas>
-        <div class="final-content">
-            <div id="finalMessage" class="final-message"></div>
-        </div>
-    </div>
+    <button id="musicToggle" class="round-control" type="button" aria-label="Pausar música" title="Controlar música">🔊</button>
+    <button id="motionToggle" class="round-control motion-control" type="button" aria-label="Reducir animaciones" title="Reducir animaciones">✨</button>
+  </div>
 
-    <!-- Audio - Múltiples fuentes para compatibilidad -->
-    <audio id="backgroundMusic" loop  preload="auto">
-        <source src="assets/music/up.mp3" type="audio/mpeg">
-        <source src="assets/music/up.wav" type="audio/wav">
-    </audio>
-
-    <!-- Music Control (para que el usuario pueda controlar la música) -->
-    <div class="music-control">
-        <button id="musicToggle" class="btn-music" title="Controlar música">
-            <span class="music-icon">🔊</span>
-        </button>
-    </div>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+  <audio id="backgroundMusic" loop preload="metadata"><source src="assets/music/up.mp3" type="audio/mpeg"></audio>
+  <script src="script.js"></script>
 </body>
 </html>

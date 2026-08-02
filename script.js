@@ -1,923 +1,110 @@
-/**
- * Jardín Encantado de Luna - Main JavaScript
- * Un regalo interactivo y mágico para el cumpleaños de Luna
- * 
- * Funcionalidades:
- * - Animaciones de partículas y canvas
- * - Sistema de rosas interactivas con animaciones 3D
- * - Gestión de audio con fade in/out (up.mp3)
- * - Navegación entre pantallas
- * - Efectos visuales mágicos mejorados
- * - Flujo narrativo coherente
- */
+'use strict';
 
-// ============================================================================
-// CONFIGURACIÓN GLOBAL
-// ============================================================================
+const CONFIG={musicVolume:.34,typingSpeed:25,rosePositions:[
+{x:12,y:35},{x:31,y:22},{x:51,y:34},{x:72,y:21},{x:89,y:38},
+{x:18,y:72},{x:37,y:65},{x:57,y:73},{x:76,y:62},{x:91,y:75}
+]};
+const MESSAGES=[
+'Bienvenida al Jardín Encantado.\n\nHoy todas las rosas florecieron para celebrar tu cumpleaños.',
+'Eres la luz que ilumina mi mundo.\n\nCada momento contigo es un regalo que guardo en el corazón.',
+'Tu sonrisa es una de las cosas más hermosas del universo.\n\nTiene el poder de convertir cualquier día común en algo especial.',
+'Cada día contigo, incluso desde lejos, es una nueva razón para agradecer y sonreír.',
+'Gracias por ser exactamente como eres: fuerte, dulce, divertida y absolutamente única.',
+'Tu cariño transforma mi vida.\n\nMe inspira a ser mejor y a creer que la distancia nunca será más grande que lo que sentimos.',
+'Eres mi razón favorita para sonreír.\n\nMi coincidencia más bonita y uno de mis sueños hechos realidad.',
+'Las rosas tienen un secreto para ti...\n\nEscúchalas con el corazón.',
+'alert','letter'];
+const LETTER=`Hoy celebramos a la persona más especial del universo.\n\nA ti, Luna.\n\nDeseo que nunca se apague la magia que llevas dentro. Que cada nuevo día te traiga razones para sonreír y que cada sueño encuentre su camino hasta ti.\n\nPreparé este pequeño jardín porque quería regalarte algo diferente: algo hecho con tiempo, dedicación y mucho cariño.\n\nAunque Brasil y Colombia estén separados por kilómetros, tú consigues estar presente en mis pensamientos todos los días.\n\nEspero que este pequeño detalle consiga tocar tu corazón, así como tú tocaste el mío.\n\n¡Feliz cumpleaños, mi amor! ❤️`;
 
-const CONFIG = {
-    MUSIC_FADE_IN_DURATION: 5000,
-    MUSIC_INITIAL_VOLUME: 0.3,
-    MUSIC_LETTER_VOLUME: 0.15,
-    MUSIC_FADE_OUT_DURATION: 3000,
-    TYPING_SPEED: 45,
-    ROSE_POSITIONS: [
-        { x: '15%', y: '20%' }, { x: '50%', y: '10%' }, { x: '85%', y: '25%' },
-        { x: '10%', y: '55%' }, { x: '90%', y: '60%' }, { x: '30%', y: '75%' },
-        { x: '70%', y: '80%' }, { x: '50%', y: '50%' }, { x: '75%', y: '40%' },
-        { x: '25%', y: '85%' }
-    ]
-};
+const state={screen:'intro',nextRose:0,music:false,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,letterOpened:false,animationId:null};
+const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
+const audio=$('#backgroundMusic');
 
-// ============================================================================
-// ALMACENAMIENTO DE ROSAS Y MENSAJES
-// ============================================================================
-
-/**
- * ORDEN NARRATIVO DE LAS ROSAS:
- * 1. Bienvenida - Introducción al jardín
- * 2. Primera verdad - Tu presencia es especial
- * 3. Tu sonrisa ilumina
- * 4. Cada nuevo día contigo
- * 5. Gracias por ser como eres
- * 6. Tu amor transforma mi vida
- * 7. Eres mi razón para sonreír
- * 8. Alerta mágica - La sorpresa/revelación
- * 9. Lo mejor está a punto de llegar
- * 10. Carta - El clímax emocional
- */
-
-const ROSES_DATA = [
-    // Rosa 1: Bienvenida e introducción
-    "Bienvenida al Jardín Encantado.\n\nHoy todas las rosas florecieron para celebrar tu cumpleaños especial.",
-    
-    // Rosa 2: Primera verdad - Impacto en el mundo
-    "Eres la luz que ilumina mi mundo.\n\nCada momento contigo es un regalo.",
-    
-    // Rosa 3: Tu belleza interior
-    "Tu sonrisa es el regalo más hermoso del universo.\n\nNo hay nada que brille más.",
-    
-    // Rosa 4: Tiempo compartido
-    "Cada día contigo es una bendición.\n\nUn nuevo motivo para sonreír.",
-    
-    // Rosa 5: Gratitud
-    "Gracias por ser exactamente como eres.\n\nPerfecta en tu esencia.",
-    
-    // Rosa 6: Tu influencia en mí
-    "Tu amor transforma mi vida.\n\nMe hace mejor cada día.",
-    
-    // Rosa 7: Razón de ser
-    "Eres mi razón favorita para sonreír.\n\nMi sueño hecho realidad.",
-    
-    // Rosa 8: Transición a la alerta
-    "Las rosas tienen un secreto para ti...\n\nEscúchalas con el corazón.",
-    
-    // Rosa 9: Alerta mágica - La revelación especial
-    "alert",
-    
-    // Rosa 10: Carta final - Lo más importante
-    "letter"
-];
-
-const LETTER_TEXT = `Hoy celebramos a la persona más especial del universo.
-
-A ti, Luna.
-
-Deseo que nunca se apague la magia que llevas dentro.
-
-Que cada nuevo día te traiga razones para sonreír.
-
-Que cada sueño encuentre su camino hacia ti.
-
-Que la vida siempre te sorprenda con momentos tan hermosos como lo eres tú.
-
-Preparé este pequeño jardín porque quería regalarte algo diferente.
-
-Algo hecho con tiempo.
-
-Con dedicación.
-
-Con amor infinito.
-
-Espero que este pequeño detalle haya logrado tocarte el corazón.
-
-Tú eres mi mayor bendición.
-
-❤️
-
-¡Feliz cumpleaños, mi amor!`;
-
-// ============================================================================
-// GESTIÓN DE ESTADO
-// ============================================================================
-
-const STATE = {
-    currentScreen: 'initial',
-    musicStarted: false,
-    musicPlaying: true,
-    currentRoseOpen: null,
-    roseOpenedSequence: new Set(), // Registrar el orden en que se abren
-    letterOpened: false,
-    alertShown: false,
-    canvasAnimations: {
-        garden: null,
-        letter: null,
-        final: null
-    }
-};
-
-// ============================================================================
-// UTILIDADES DE AUDIO
-// ============================================================================
-
-class AudioManager {
-    constructor() {
-        this.audio = document.getElementById('backgroundMusic');
-        this.audio.volume = 0;
-    }
-
-    /**
-     * Inicia la reproducción de música con fade in
-     */
-    playWithFadeIn() {
-        if (STATE.musicStarted) return;
-        
-        this.audio.play().catch(() => {
-            console.log('Reproducción de audio bloqueada por el navegador');
-        });
-        STATE.musicStarted = true;
-        STATE.musicPlaying = true;
-        this.updateMusicButton();
-        this.fadeIn(CONFIG.MUSIC_INITIAL_VOLUME, CONFIG.MUSIC_FADE_IN_DURATION);
-    }
-
-    /**
-     * Alterna pausa/reproducción
-     */
-    toggleMusic() {
-        if (this.audio.paused) {
-            this.audio.play();
-            STATE.musicPlaying = true;
-        } else {
-            this.audio.pause();
-            STATE.musicPlaying = false;
-        }
-        this.updateMusicButton();
-    }
-
-    /**
-     * Actualiza el icono del botón de música
-     */
-    updateMusicButton() {
-        const btn = document.getElementById('musicToggle');
-        if (btn) {
-            btn.innerHTML = `<span class="music-icon">${STATE.musicPlaying ? '🔊' : '🔇'}</span>`;
-        }
-    }
-
-    /**
-     * Aplica fade in al volumen
-     */
-    fadeIn(targetVolume, duration) {
-        const steps = 60;
-        const stepDuration = duration / steps;
-        const volumeIncrement = targetVolume / steps;
-        let currentStep = 0;
-
-        const fadeInterval = setInterval(() => {
-            if (currentStep < steps) {
-                this.audio.volume = Math.min(
-                    this.audio.volume + volumeIncrement,
-                    targetVolume
-                );
-                currentStep++;
-            } else {
-                this.audio.volume = targetVolume;
-                clearInterval(fadeInterval);
-            }
-        }, stepDuration);
-    }
-
-    /**
-     * Aplica fade out al volumen
-     */
-    fadeOut(duration) {
-        const steps = 60;
-        const stepDuration = duration / steps;
-        const volumeDecrement = this.audio.volume / steps;
-        let currentStep = 0;
-
-        const fadeInterval = setInterval(() => {
-            if (currentStep < steps) {
-                this.audio.volume = Math.max(
-                    this.audio.volume - volumeDecrement,
-                    0
-                );
-                currentStep++;
-            } else {
-                this.audio.volume = 0;
-                this.audio.pause();
-                clearInterval(fadeInterval);
-            }
-        }, stepDuration);
-    }
-
-    /**
-     * Establece el volumen a un valor específico
-     */
-    setVolume(volume) {
-        this.audio.volume = Math.max(0, Math.min(1, volume));
-    }
-
-    /**
-     * Reduce el volumen a un valor específico
-     */
-    reduceTo(targetVolume, duration = 1000) {
-        const steps = 30;
-        const stepDuration = duration / steps;
-        const volumeDifference = this.audio.volume - targetVolume;
-        const volumeDecrement = volumeDifference / steps;
-        let currentStep = 0;
-
-        const fadeInterval = setInterval(() => {
-            if (currentStep < steps) {
-                this.audio.volume = Math.max(
-                    this.audio.volume - volumeDecrement,
-                    targetVolume
-                );
-                currentStep++;
-            } else {
-                this.audio.volume = targetVolume;
-                clearInterval(fadeInterval);
-            }
-        }, stepDuration);
-    }
+function createRealisticRose({id,size=100,color='#d9254f',accentColor='#ff7892',rotation=0,animationDelay=0}){
+ const seed=Number(String(id).replace(/\D/g,''))||1;
+ const rand=n=>{const x=Math.sin((seed+1)*(n+17)*91.73)*43758.5453;return x-Math.floor(x)};
+ const petal=(layer,index,count,radius,width,height,gradient)=>{
+  const angle=(360/count)*index+(rand(index+count)*10-5),a=angle*Math.PI/180;
+  const x=120+Math.cos(a)*radius*(.78+rand(index+3)*.3),y=105+Math.sin(a)*radius*.46+(rand(index+9)-.5)*5;
+  const w=width*(.88+rand(index+13)*.24),h=height*(.9+rand(index+21)*.2),lean=(rand(index+29)-.5)*w*.28;
+  const d=`M 0 ${h*.47} C ${-w*.62} ${h*.15},${-w*.55+lean} ${-h*.34},0 ${-h*.53} C ${w*.55+lean} ${-h*.34},${w*.62} ${h*.15},0 ${h*.47} Z`;
+  return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(angle+90+(rand(index+31)-.5)*12).toFixed(1)})"><path class="rose-petal petal-${layer}" style="--petal-delay:${(animationDelay+index*.035).toFixed(2)}s;--petal-turn:${((rand(index+37)-.5)*9).toFixed(1)}deg" d="${d}" fill="url(#${id}-${gradient})"/></g>`;
+ };
+ const layer=(name,count,radius,width,height,gradient,offset)=>Array.from({length:count},(_,i)=>petal(name,i+offset,count,radius,width,height,gradient)).join('');
+ return `<svg class="realistic-rose rose-svg" viewBox="0 0 240 360" role="img" aria-label="Rosa vermelha realista" style="--rose-size:${size};--rose-rotation:${rotation}deg;--rose-delay:${animationDelay}s">
+ <defs>
+  <linearGradient id="${id}-stem" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#10351e"/><stop offset=".48" stop-color="#3b8a4d"/><stop offset="1" stop-color="#0a2817"/></linearGradient>
+  <linearGradient id="${id}-leaf" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#0b301b"/><stop offset=".55" stop-color="#2f7540"/><stop offset="1" stop-color="#70a765"/></linearGradient>
+  <radialGradient id="${id}-outer" cx="34%" cy="22%" r="78%"><stop stop-color="${accentColor}"/><stop offset=".3" stop-color="${color}"/><stop offset=".78" stop-color="#8a102d"/><stop offset="1" stop-color="#4b071b"/></radialGradient>
+  <radialGradient id="${id}-middle" cx="38%" cy="20%" r="82%"><stop stop-color="${accentColor}"/><stop offset=".24" stop-color="${color}"/><stop offset=".72" stop-color="#761027"/><stop offset="1" stop-color="#350611"/></radialGradient>
+  <radialGradient id="${id}-inner" cx="42%" cy="18%" r="86%"><stop stop-color="${color}"/><stop offset=".5" stop-color="#86112c"/><stop offset="1" stop-color="#28030d"/></radialGradient>
+  <linearGradient id="${id}-edge" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${accentColor}" stop-opacity=".85"/><stop offset=".35" stop-color="${color}" stop-opacity=".12"/><stop offset="1" stop-color="#3d0614" stop-opacity=".65"/></linearGradient>
+  <filter id="${id}-shadow" x="-45%" y="-45%" width="190%" height="190%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="blur"/><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#170108" flood-opacity=".72"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="${id}-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2" result="soft"/><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="${accentColor}" flood-opacity=".5"/><feMerge><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ </defs>
+ <g class="rose-sway" transform="rotate(${rotation} 120 340)">
+  <g class="rose-stem"><path class="stem-shadow" d="M121 342 C118 285 129 220 119 132"/><path class="stem-highlight" style="stroke:url(#${id}-stem)" d="M118 342 C115 286 126 220 118 132"/><g class="rose-leaves"><g class="rose-leaf leaf-left" style="fill:url(#${id}-leaf)"><path d="M118 272 C78 240 47 251 38 279 C70 296 98 288 118 272Z"/><path class="leaf-vein" d="M45 277 Q78 270 113 273"/></g><g class="rose-leaf leaf-right" style="fill:url(#${id}-leaf)"><path d="M122 232 C153 196 190 205 201 233 C174 253 145 249 122 232Z"/><path class="leaf-vein" d="M194 230 Q159 226 126 233"/></g></g></g>
+  <g class="rose-sepals" filter="url(#${id}-shadow)"><path d="M120 139 L91 166 Q111 157 120 178 Q129 157 149 166Z"/><path d="M118 143 L77 151 Q101 154 111 174Z"/><path d="M122 143 L163 151 Q139 154 129 174Z"/></g>
+  <g class="rose-bloom" filter="url(#${id}-shadow)"><ellipse class="bloom-shadow" cx="120" cy="116" rx="66" ry="28"/>
+   <g class="petals petals-outer">${layer('outer',8,43,55,67,'outer',0)}</g>
+   <g class="petals petals-middle">${layer('middle',8,27,43,57,'middle',10)}</g>
+   <g class="petals petals-inner">${layer('inner',8,13,28,43,'inner',20)}<ellipse class="rose-heart" cx="120" cy="103" rx="12" ry="16" fill="url(#${id}-inner)"/></g>
+  </g>
+ </g></svg>`;
 }
 
-// ============================================================================
-// GESTIÓN DE PANTALLAS
-// ============================================================================
-
-class ScreenManager {
-    /**
-     * Cambia a una pantalla específica
-     */
-    static switchTo(screenName) {
-        // Remover la clase active de todas las pantallas
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('screen-active');
-        });
-
-        // Agregar la clase active a la pantalla especificada
-        const targetScreen = document.getElementById(`${screenName}Screen`);
-        if (targetScreen) {
-            targetScreen.classList.add('screen-active');
-            STATE.currentScreen = screenName;
-
-            // Iniciar animaciones específicas de cada pantalla
-            setTimeout(() => {
-                if (screenName === 'garden') {
-                    startGardenAnimations();
-                } else if (screenName === 'letter') {
-                    startLetterAnimations();
-                } else if (screenName === 'final') {
-                    startFinalAnimations();
-                }
-            }, 100);
-        }
-    }
+class AudioController{
+ static async start(){if(state.music)return;try{audio.volume=0;await audio.play();state.music=true;this.fadeTo(CONFIG.musicVolume,2400);this.update()}catch(e){console.info('Audio aguardando interação do usuário.',e)}}
+ static toggle(){if(audio.paused){audio.play().then(()=>{state.music=true;this.fadeTo(CONFIG.musicVolume,500);this.update()}).catch(()=>{})}else{audio.pause();state.music=false;this.update()}}
+ static fadeTo(target,duration){const from=audio.volume,start=performance.now();const step=t=>{const p=Math.min(1,(t-start)/duration);audio.volume=Math.max(0,Math.min(1,from+(target-from)*p));if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+ static update(){$('#musicToggle').textContent=audio.paused?'🔇':'🔊';$('#musicToggle').setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música')}
 }
 
-// ============================================================================
-// ANIMACIONES CON CANVAS
-// ============================================================================
-
-class CanvasAnimations {
-    /**
-     * Inicia animaciones del jardín (estrellas, luciérnaga, pétalos)
-     */
-    static initGarden() {
-        const canvas = document.getElementById('gardenCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Hacer canvas responsive
-        this.resizeCanvas(canvas);
-        window.addEventListener('resize', () => this.resizeCanvas(canvas));
-
-        // Inicializar partículas
-        const particles = this.createParticles(50);
-        const stars = this.createStars(canvas.width, canvas.height, 80);
-        const fireflies = this.createFireflies(canvas.width, canvas.height, 20);
-
-        // Loop de animación
-        const animate = () => {
-            // Limpiar canvas
-            ctx.fillStyle = 'rgba(10, 30, 77, 0)';
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar y actualizar estrellas
-            stars.forEach(star => {
-                star.update();
-                star.draw(ctx);
-            });
-
-            // Dibujar y actualizar luciérnagas
-            fireflies.forEach(firefly => {
-                firefly.update();
-                firefly.draw(ctx);
-            });
-
-            // Dibujar y actualizar pétalos
-            particles.forEach((particle, index) => {
-                particle.update();
-                particle.draw(ctx);
-
-                // Reiniciar partículas que caen del borde
-                if (particle.y > canvas.height) {
-                    particles[index] = this.createParticle(canvas.width);
-                }
-            });
-
-            // Dibujar luna
-            this.drawMoon(ctx, canvas.width, canvas.height);
-
-            // Dibujar efecto de brillo
-            this.drawGlowEffect(ctx, canvas.width, canvas.height);
-
-            STATE.canvasAnimations.garden = requestAnimationFrame(animate);
-        };
-
-        animate();
-    }
-
-    /**
-     * Inicia animaciones de la carta
-     */
-    static initLetter() {
-        const canvas = document.getElementById('letterCanvas');
-        const ctx = canvas.getContext('2d');
-
-        this.resizeCanvas(canvas);
-        window.addEventListener('resize', () => this.resizeCanvas(canvas));
-
-        const fireflies = this.createFireflies(canvas.width, canvas.height, 25);
-        const stars = this.createStars(canvas.width, canvas.height, 50);
-
-        const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar estrellas
-            stars.forEach(star => {
-                star.update();
-                star.draw(ctx);
-            });
-
-            // Dibujar luciérnagas
-            fireflies.forEach(firefly => {
-                firefly.update();
-                firefly.draw(ctx);
-            });
-
-            this.drawGlowEffect(ctx, canvas.width, canvas.height);
-
-            STATE.canvasAnimations.letter = requestAnimationFrame(animate);
-        };
-
-        animate();
-    }
-
-    /**
-     * Inicia animaciones finales
-     */
-    static initFinal() {
-        const canvas = document.getElementById('finalCanvas');
-        const ctx = canvas.getContext('2d');
-
-        this.resizeCanvas(canvas);
-        window.addEventListener('resize', () => this.resizeCanvas(canvas));
-
-        const particles = this.createParticles(80);
-        const stars = this.createStars(canvas.width, canvas.height, 100);
-        const fireflies = this.createFireflies(canvas.width, canvas.height, 30);
-
-        const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar estrellas
-            stars.forEach(star => {
-                star.update();
-                star.draw(ctx);
-            });
-
-            // Dibujar luciérnagas
-            fireflies.forEach(firefly => {
-                firefly.update();
-                firefly.draw(ctx);
-            });
-
-            // Dibujar pétalos
-            particles.forEach((particle, index) => {
-                particle.update();
-                particle.draw(ctx);
-
-                if (particle.y > canvas.height) {
-                    particles[index] = this.createParticle(canvas.width);
-                }
-            });
-
-            this.drawMoon(ctx, canvas.width, canvas.height);
-            this.drawGlowEffect(ctx, canvas.width, canvas.height);
-
-            STATE.canvasAnimations.final = requestAnimationFrame(animate);
-        };
-
-        animate();
-    }
-
-    /**
-     * Redimensiona el canvas al tamaño de la ventana
-     */
-    static resizeCanvas(canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
-    /**
-     * Crea partículas (pétalos)
-     */
-    static createParticles(count = 30) {
-        const particles = [];
-        for (let i = 0; i < count; i++) {
-            particles.push(this.createParticle(window.innerWidth));
-        }
-        return particles;
-    }
-
-    /**
-     * Crea una partícula individual
-     */
-    static createParticle(maxWidth) {
-        return {
-            x: Math.random() * maxWidth,
-            y: Math.random() * window.innerHeight - window.innerHeight,
-            size: Math.random() * 4 + 2,
-            speedY: Math.random() * 1.5 + 0.5,
-            speedX: Math.random() * 2 - 1,
-            rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: Math.random() * 0.08 - 0.04,
-            opacity: Math.random() * 0.6 + 0.3,
-            color: Math.random() > 0.5 ? '#dc2626' : '#ec4899',
-
-            update() {
-                this.y += this.speedY;
-                this.x += this.speedX;
-                this.rotation += this.rotationSpeed;
-            },
-
-            draw(ctx) {
-                ctx.save();
-                ctx.globalAlpha = this.opacity;
-                ctx.fillStyle = this.color;
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-                ctx.beginPath();
-                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-        };
-    }
-
-    /**
-     * Crea estrellas parpadeantes
-     */
-    static createStars(width, height, count = 50) {
-        const stars = [];
-        for (let i = 0; i < count; i++) {
-            stars.push({
-                x: Math.random() * width,
-                y: Math.random() * height * 0.6,
-                size: Math.random() * 1.5 + 0.5,
-                opacity: Math.random() * 0.6 + 0.3,
-                twinkleSpeed: Math.random() * 0.03 + 0.01,
-                twinkleDirection: Math.random() > 0.5 ? 1 : -1,
-
-                update() {
-                    this.opacity += this.twinkleSpeed * this.twinkleDirection;
-                    if (this.opacity > 1 || this.opacity < 0.2) {
-                        this.twinkleDirection *= -1;
-                    }
-                },
-
-                draw(ctx) {
-                    ctx.save();
-                    ctx.globalAlpha = this.opacity;
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-                }
-            });
-        }
-        return stars;
-    }
-
-    /**
-     * Crea luciérnagas volantes
-     */
-    static createFireflies(width, height, count = 15) {
-        const fireflies = [];
-        for (let i = 0; i < count; i++) {
-            fireflies.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                size: Math.random() * 2.5 + 1.5,
-                speedX: Math.random() * 1.5 - 0.75,
-                speedY: Math.random() * 1.5 - 0.75,
-                opacity: Math.random() * 0.6 + 0.3,
-                glowSize: Math.random() * 30 + 20,
-                glowPulse: Math.random() * 0.08,
-
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-
-                    // Rebotar en bordes
-                    if (this.x < 0 || this.x > width) this.speedX *= -1;
-                    if (this.y < 0 || this.y > height) this.speedY *= -1;
-
-                    this.opacity += Math.random() * 0.12 - 0.06;
-                    this.opacity = Math.max(0.1, Math.min(0.9, this.opacity));
-                },
-
-                draw(ctx) {
-                    ctx.save();
-                    ctx.globalAlpha = this.opacity;
-
-                    // Brillo dorado y rosado
-                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.glowSize);
-                    gradient.addColorStop(0, 'rgba(251, 191, 36, 0.9)');
-                    gradient.addColorStop(0.5, 'rgba(236, 72, 153, 0.4)');
-                    gradient.addColorStop(1, 'rgba(251, 191, 36, 0)');
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(this.x - this.glowSize, this.y - this.glowSize, this.glowSize * 2, this.glowSize * 2);
-
-                    // Centro
-                    ctx.fillStyle = '#fbbf24';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.restore();
-                }
-            });
-        }
-        return fireflies;
-    }
-
-    /**
-     * Dibuja la luna
-     */
-    static drawMoon(ctx, width, height) {
-        const moonX = width * 0.85;
-        const moonY = height * 0.15;
-        const moonRadius = 100;
-
-        // Brillo de luna
-        const gradient = ctx.createRadialGradient(moonX - 25, moonY - 25, 0, moonX, moonY, moonRadius * 1.3);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-        gradient.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, moonRadius * 1.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Luna sólida
-        ctx.fillStyle = '#fef3c7';
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, moonRadius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Sombra lunar
-        ctx.fillStyle = '#0a1e4d';
-        ctx.beginPath();
-        ctx.arc(moonX + 20, moonY + 20, moonRadius * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    /**
-     * Dibuja efecto de brillo general
-     */
-    static drawGlowEffect(ctx, width, height) {
-        const gradient = ctx.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, Math.max(width, height));
-        gradient.addColorStop(0, 'rgba(251, 191, 36, 0.08)');
-        gradient.addColorStop(0.5, 'rgba(236, 72, 153, 0.04)');
-        gradient.addColorStop(1, 'rgba(251, 191, 36, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-    }
-
-    /**
-     * Detiene la animación especificada
-     */
-    static stopAnimation(type) {
-        if (STATE.canvasAnimations[type]) {
-            cancelAnimationFrame(STATE.canvasAnimations[type]);
-            STATE.canvasAnimations[type] = null;
-        }
-    }
+class ScreenController{
+ static show(name){$$('.screen').forEach(s=>s.classList.remove('active'));$(`#${name}Screen`).classList.add('active');state.screen=name;if(name==='garden')Particles.mode='garden';if(name==='letter')Particles.mode='letter';if(name==='final'){Particles.mode='final';Particles.burst(innerWidth/2,innerHeight/2,100)}}
 }
 
-// ============================================================================
-// GESTIÓN DE ROSAS
-// ============================================================================
-
-class RoseManager {
-    /**
-     * Crea todas las rosas en el jardín
-     */
-    static createRoses() {
-        const container = document.getElementById('rosesContainer');
-        container.innerHTML = '';
-
-        ROSES_DATA.forEach((message, index) => {
-            const rose = document.createElement('div');
-            rose.className = 'rose';
-            rose.style.left = CONFIG.ROSE_POSITIONS[index].x;
-            rose.style.top = CONFIG.ROSE_POSITIONS[index].y;
-            rose.innerHTML = '<span class="rose-emoji">🌹</span>';
-            rose.dataset.index = index;
-
-            rose.addEventListener('click', () => this.openRose(index));
-
-            container.appendChild(rose);
-        });
-    }
-
-    /**
-     * Abre una rosa específica
-     * Mantiene el orden narrativo sin quebrar el flujo
-     */
-    static openRose(index) {
-        const message = ROSES_DATA[index];
-
-        // Si ya se abrió esta rosa, no hacer nada (evita duplicados)
-        if (STATE.roseOpenedSequence.has(index)) {
-            return;
-        }
-
-        if (message === 'alert') {
-            this.showAlert();
-            STATE.roseOpenedSequence.add(index);
-            return;
-        }
-
-        if (message === 'letter') {
-            this.openLetter();
-            STATE.roseOpenedSequence.add(index);
-            return;
-        }
-
-        // Cerrar mensaje anterior si existe
-        if (STATE.currentRoseOpen !== null && STATE.currentRoseOpen !== index) {
-            this.closeRoseMessage();
-        }
-
-        STATE.currentRoseOpen = index;
-        STATE.roseOpenedSequence.add(index);
-
-        // Crear contenedor del mensaje
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'rose-message';
-        messageDiv.id = 'currentMessage';
-
-        // Centrar mensaje en pantalla
-        const messageText = document.createElement('p');
-        messageText.textContent = message;
-        messageDiv.appendChild(messageText);
-
-        // Botón de cerrar
-        const closeBtn = document.createElement('button');
-        closeBtn.className = 'close-message';
-        closeBtn.innerHTML = '×';
-        closeBtn.onclick = () => this.closeRoseMessage();
-        messageDiv.appendChild(closeBtn);
-
-        document.body.appendChild(messageDiv);
-
-        // Posicionar en el centro
-        setTimeout(() => {
-            const rect = messageDiv.getBoundingClientRect();
-            messageDiv.style.top = `${(window.innerHeight - rect.height) / 2}px`;
-            messageDiv.style.left = `${(window.innerWidth - rect.width) / 2}px`;
-        }, 10);
-    }
-
-    /**
-     * Cierra el mensaje de rosa actual
-     */
-    static closeRoseMessage() {
-        const messageDiv = document.getElementById('currentMessage');
-        if (messageDiv) {
-            messageDiv.remove();
-        }
-        STATE.currentRoseOpen = null;
-    }
-
-    /**
-     * Muestra la alerta mágica (rosa 9)
-     */
-    static showAlert() {
-        const alertOverlay = document.getElementById('alertOverlay');
-        alertOverlay.classList.remove('hidden');
-        STATE.alertShown = true;
-
-        const continueBtn = document.getElementById('continueAlertBtn');
-        continueBtn.onclick = () => {
-            alertOverlay.classList.add('hidden');
-        };
-    }
-
-    /**
-     * Abre la carta (rosa 10 - clímax)
-     */
-    static openLetter() {
-        ScreenManager.switchTo('letter');
-        audioManager.reduceTo(CONFIG.MUSIC_LETTER_VOLUME, 1000);
-
-        // Abrir sobre
-        const envelope = document.getElementById('envelope');
-        setTimeout(() => {
-            envelope.classList.add('open');
-        }, 500);
-
-        // Revelar carta
-        const letter = document.getElementById('letter');
-        setTimeout(() => {
-            letter.classList.remove('hidden');
-            this.typeLetterText();
-        }, 1400);
-    }
-
-    /**
-     * Efecto de máquina de escribir para la carta
-     */
-    static typeLetterText() {
-        const letterText = document.getElementById('letterText');
-        letterText.innerHTML = '';
-        
-        const paragraphs = LETTER_TEXT.split('\n\n');
-        let paragraphIndex = 0;
-        let charIndex = 0;
-
-        const type = () => {
-            if (paragraphIndex < paragraphs.length) {
-                const paragraph = paragraphs[paragraphIndex];
-
-                if (charIndex === 0) {
-                    const p = document.createElement('p');
-                    p.style.minHeight = '1.8rem';
-                    letterText.appendChild(p);
-                }
-
-                const lastP = letterText.querySelector('p:last-child');
-                lastP.textContent += paragraph[charIndex];
-                charIndex++;
-
-                if (charIndex < paragraph.length) {
-                    setTimeout(type, CONFIG.TYPING_SPEED);
-                } else {
-                    paragraphIndex++;
-                    charIndex = 0;
-                    setTimeout(type, 600);
-                }
-            } else {
-                // Carta terminada
-                setTimeout(() => this.finishLetter(), 2000);
-            }
-        };
-
-        type();
-    }
-
-    /**
-     * Finaliza la carta y va a pantalla final
-     */
-    static finishLetter() {
-        // Cerrar carta
-        const envelope = document.getElementById('envelope');
-        envelope.classList.remove('open');
-
-        audioManager.fadeOut(CONFIG.MUSIC_FADE_OUT_DURATION);
-
-        setTimeout(() => {
-            ScreenManager.switchTo('final');
-            this.showFinalMessage();
-        }, 1500);
-    }
-
-    /**
-     * Muestra el mensaje final
-     */
-    static showFinalMessage() {
-        const finalMessage = document.getElementById('finalMessage');
-        finalMessage.innerHTML = '';
-
-        const message1 = document.createElement('p');
-        message1.className = 'distance-message';
-        message1.innerHTML = 'La distancia es solo un número...<br><br>pero tu amor es infinito.❤️';
-        finalMessage.appendChild(message1);
-
-        setTimeout(() => {
-            const message2 = document.createElement('p');
-            message2.className = 'gratitude';
-            message2.innerHTML = 'Gracias por recorrer este pequeño jardín.<br><br>¡Feliz cumpleaños, Luna!<br><br>🌹✨';
-            finalMessage.appendChild(message2);
-
-            setTimeout(() => {
-                CanvasAnimations.initFinal();
-                setTimeout(() => {
-                    this.fadeToBlack();
-                }, 6000);
-            }, 1000);
-        }, 2000);
-    }
-
-    /**
-     * Desvanece a negro
-     */
-    static fadeToBlack() {
-        document.body.style.transition = 'background 3s ease-out';
-        document.body.style.background = '#000000';
-
-        const screens = document.querySelectorAll('.screen');
-        screens.forEach(screen => {
-            screen.style.opacity = '0';
-        });
-    }
+class RoseGarden{
+ static init(){const container=$('#rosesContainer');container.innerHTML='';CONFIG.rosePositions.forEach((pos,i)=>{const btn=document.createElement('button');btn.type='button';btn.className=`rose-button ${i===0?'current':'locked'}`;btn.style.setProperty('--x',`${pos.x}%`);btn.style.setProperty('--y',`${pos.y}%`);btn.style.setProperty('--delay',`${(i%5)*-.73}s`);btn.style.setProperty('--grow-delay',`${i*.09}s`);btn.style.setProperty('--wind-duration',`${4.1+(i%4)*.37}s`);btn.setAttribute('aria-label',`Rosa ${i+1}${i>0?' bloqueada':''}`);btn.dataset.index=i;btn.innerHTML=createRealisticRose({id:`rose-${i}`,size:92+(i%3)*4,color:['#d92850','#c91f46','#e23459'][i%3],accentColor:['#ff7189','#f75f7d','#ff8395'][i%3],rotation:(i%2?-1:1)*(1+i%3),animationDelay:.55+i*.06});btn.addEventListener('click',()=>this.open(i));btn.addEventListener('pointermove',e=>this.tilt(btn,e));btn.addEventListener('pointerleave',()=>this.resetTilt(btn));container.appendChild(btn)});this.updateProgress()}
+ static tilt(btn,event){if(btn.classList.contains('locked')||matchMedia('(pointer: coarse)').matches)return;const r=btn.getBoundingClientRect();btn.style.setProperty('--tilt-x',`${((event.clientX-r.left)/r.width-.5)*7}deg`);btn.style.setProperty('--tilt-y',`${((event.clientY-r.top)/r.height-.5)*-3}px`)}
+ static resetTilt(btn){btn.style.setProperty('--tilt-x','0deg');btn.style.setProperty('--tilt-y','0px')}
+ static open(index){if(index!==state.nextRose)return;const btn=$(`.rose-button[data-index="${index}"]`);btn.classList.remove('current');btn.classList.add('opened');const rect=btn.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height*.28;Particles.burst(x,y,35);Particles.releaseRosePetals(x,y,9);const value=MESSAGES[index];if(value==='alert')this.alert();else if(value==='letter'){state.nextRose++;this.updateProgress();setTimeout(()=>ScreenController.show('letter'),850)}else this.message(index,value)}
+ static message(index,text){$('#messageNumber').textContent=String(index+1).padStart(2,'0');$('#messageBody').textContent=text;$('#messageModal').hidden=false}
+ static closeMessage(){const modal=$('#messageModal');modal.hidden=true;this.advance()}
+ static alert(){$('#magicAlert').hidden=false}
+ static closeAlert(){$('#magicAlert').hidden=true;this.advance()}
+ static advance(){state.nextRose++;this.updateProgress();const next=$(`.rose-button[data-index="${state.nextRose}"]`);if(next){next.classList.remove('locked');next.classList.add('current');next.setAttribute('aria-label',`Rosa ${state.nextRose+1}`)}}
+ static updateProgress(){$('#progressBar').style.width=`${state.nextRose/10*100}%`;$('#progressText').textContent=`${state.nextRose} / 10`}
 }
 
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
+class LetterController{
+ static open(){if(state.letterOpened)return;state.letterOpened=true;$('#envelope').classList.add('open');$('#letterHint').textContent='Una carta escrita desde el corazón';AudioController.fadeTo(.18,900);setTimeout(()=>this.type(),900)}
+ static async type(){const out=$('#letterText');out.textContent='';for(let i=0;i<LETTER.length;i++){out.textContent+=LETTER[i];if(i%4===0)out.parentElement.scrollTop=out.parentElement.scrollHeight;if(!state.reduced)await new Promise(r=>setTimeout(r,CONFIG.typingSpeed))}$('.signature').classList.add('visible');$('#finishLetterBtn').classList.remove('hidden');AudioController.fadeTo(CONFIG.musicVolume,1200)}
+}
 
-const audioManager = new AudioManager();
+class ParticleEngine{
+ constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.items=[];this.mode='intro';this.resize();addEventListener('resize',()=>this.resize());for(let i=0;i<80;i++)this.items.push(this.star());for(let i=0;i<18;i++)this.items.push(this.firefly());this.loop()}
+ resize(){const dpr=Math.min(devicePixelRatio||1,2);this.canvas.width=innerWidth*dpr;this.canvas.height=innerHeight*dpr;this.canvas.style.width=innerWidth+'px';this.canvas.style.height=innerHeight+'px';this.ctx.setTransform(dpr,0,0,dpr,0,0)}
+ star(){return{kind:'star',x:Math.random()*innerWidth,y:Math.random()*innerHeight*.7,r:Math.random()*1.6+.3,a:Math.random(),v:Math.random()*.02+.006}}
+ firefly(){return{kind:'firefly',x:Math.random()*innerWidth,y:innerHeight*(.3+Math.random()*.65),r:Math.random()*2+1,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.35,a:Math.random()}}
+ petal(x=Math.random()*innerWidth,y=-20){return{kind:'petal',x,y,r:Math.random()*5+3,vx:(Math.random()-.5)*1.1,vy:Math.random()*1.1+.45,rot:Math.random()*6.2,vr:(Math.random()-.5)*.05,a:.8}}
+ releaseRosePetals(x,y,count=8){for(let i=0;i<count;i++){const p=this.petal(x+(Math.random()-.5)*34,y+(Math.random()-.5)*20);p.vx=(Math.random()-.5)*3.2;p.vy=-Math.random()*2.4-.35;p.r=Math.random()*4+3;p.a=.9;this.items.push(p)}}
+ burst(x,y,count=30){for(let i=0;i<count;i++)this.items.push({kind:'spark',x,y,r:Math.random()*3+1,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5-1,a:1,life:Math.random()*45+40,color:Math.random()>.45?'#ffd873':'#ff5f99'})}
+ loop(){const c=this.ctx;c.clearRect(0,0,innerWidth,innerHeight);if((this.mode==='garden'||this.mode==='final')&&Math.random()<.055&&!state.reduced)this.items.push(this.petal());for(let i=this.items.length-1;i>=0;i--){const p=this.items[i];if(p.kind==='star'){p.a+=p.v;if(p.a>1||p.a<.15)p.v*=-1;c.globalAlpha=p.a;c.fillStyle='#fff';c.beginPath();c.arc(p.x,p.y,p.r,0,7);c.fill()}else if(p.kind==='firefly'){p.x+=p.vx;p.y+=p.vy;p.a=.35+Math.sin(performance.now()/700+p.x)*.3;if(p.x<0)p.x=innerWidth;if(p.x>innerWidth)p.x=0;if(p.y<0)p.y=innerHeight;if(p.y>innerHeight)p.y=0;const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,18);g.addColorStop(0,`rgba(255,220,98,${p.a})`);g.addColorStop(1,'rgba(255,220,98,0)');c.fillStyle=g;c.fillRect(p.x-18,p.y-18,36,36)}else if(p.kind==='petal'){p.x+=p.vx+Math.sin(p.y/35)*.25;p.y+=p.vy;p.rot+=p.vr;c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.globalAlpha=p.a;c.fillStyle='#e94274';c.beginPath();c.ellipse(0,0,p.r,p.r*.55,0,0,7);c.fill();c.restore();if(p.y>innerHeight+30)this.items.splice(i,1)}else{p.x+=p.vx;p.y+=p.vy;p.vy+=.045;p.life--;p.a=p.life/80;c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.r,0,7);c.fill();if(p.life<=0)this.items.splice(i,1)}}c.globalAlpha=1;state.animationId=requestAnimationFrame(()=>this.loop())}
+}
+const Particles=new ParticleEngine($('#fxCanvas'));
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Botón de inicio
-    const startBtn = document.getElementById('startBtn');
-    startBtn.addEventListener('click', () => {
-        ScreenManager.switchTo('garden');
-        audioManager.playWithFadeIn();
-        RoseManager.createRoses();
-    });
+function restart(){state.nextRose=0;state.letterOpened=false;$('#envelope').classList.remove('open');$('#letterText').textContent='';$('.signature').classList.remove('visible');$('#finishLetterBtn').classList.add('hidden');$('#letterHint').textContent='Toca el sello para abrir la carta';RoseGarden.init();ScreenController.show('garden');AudioController.fadeTo(CONFIG.musicVolume,700)}
 
-    // Control de música
-    const musicToggle = document.getElementById('musicToggle');
-    musicToggle.addEventListener('click', () => {
-        audioManager.toggleMusic();
-    });
-
-    // Hacer canvas responsive
-    window.addEventListener('resize', () => {
-        if (STATE.currentScreen === 'garden') {
-            CanvasAnimations.resizeCanvas(document.getElementById('gardenCanvas'));
-        } else if (STATE.currentScreen === 'letter') {
-            CanvasAnimations.resizeCanvas(document.getElementById('letterCanvas'));
-        } else if (STATE.currentScreen === 'final') {
-            CanvasAnimations.resizeCanvas(document.getElementById('finalCanvas'));
-        }
-    });
-
-    // Permitir que el usuario inicie con un clic en cualquier parte (para audio)
-    document.addEventListener('click', () => {
-        if (!STATE.musicStarted && STATE.currentScreen !== 'initial') {
-            audioManager.playWithFadeIn();
-        }
-    }, { once: true });
+document.addEventListener('DOMContentLoaded',()=>{
+ if(state.reduced)document.body.classList.add('reduced-motion');RoseGarden.init();
+ $('#startBtn').addEventListener('click',()=>{AudioController.start();ScreenController.show('garden')});
+ $('#closeMessageBtn').addEventListener('click',()=>RoseGarden.closeMessage());
+ $('#continueAlertBtn').addEventListener('click',()=>RoseGarden.closeAlert());
+ $('#envelope').addEventListener('click',()=>LetterController.open());
+ $('#finishLetterBtn').addEventListener('click',()=>ScreenController.show('final'));
+ $('#restartBtn').addEventListener('click',restart);
+ $('#musicToggle').addEventListener('click',()=>AudioController.toggle());
+ $('#motionToggle').addEventListener('click',()=>{state.reduced=!state.reduced;document.body.classList.toggle('reduced-motion',state.reduced);$('#motionToggle').textContent=state.reduced?'🌙':'✨'});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#messageModal').hidden)RoseGarden.closeMessage()});
 });
-
-/**
- * Inicia animaciones del jardín
- */
-function startGardenAnimations() {
-    CanvasAnimations.initGarden();
-}
-
-/**
- * Inicia animaciones de la carta
- */
-function startLetterAnimations() {
-    CanvasAnimations.initLetter();
-}
-
-/**
- * Inicia animaciones finales
- */
-function startFinalAnimations() {
-    CanvasAnimations.initFinal();
-}
